@@ -12,7 +12,7 @@ The Baseline score to beat on the test set for ExVo-MultiTask is: 0.335 S<sub>MT
 
 In the ExVo Generate task, participants are tasked with applying generative modeling approaches to produce vocal bursts that are associated with 10 distinct emotions. Each team should submit 1000 machine-generated vocalizations (100 for each class) that differentially convey each of the 10 emotions—“awe,” “fear,” etc.—with maximal intensity and fidelity. **Participants can submit samples for either one or all classes**. The ExVo organization team will provide for computing the Fréchet Inception Score. The final evaluation will incorporate human ratings gathered by Hume AI of a random subset of 5/100 samples per targeted emotion. These ratings of the generated vocal bursts will be gathered using the same methodology used to collect the training data, with each vocal burst judged in terms of the perceived intensity of each target emotion. Generated samples will be evaluated based on the Pearsons between normed (0-1) average intensity ratings for the 10 classes and the identity matrix consisting of dummy variables for each class.
 
-The Baseline score to beat for ExVo-Generate is: 0.094 S<sub>GEN</sub>
+The Baseline score to beat for ExVo-Generate is: 0.174 S<sub>GEN</sub>
 
 **The Few-Shot Emotion Recognition task ([ExVo-FewShot](https://github.com/HumeAI/competitions/tree/main/ExVo2022/ExVo-FewShot))**
 
