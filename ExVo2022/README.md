@@ -1,6 +1,6 @@
 # ICML ExVo 2022 Workshop & Competition
 
-Baseline code for the three tracks of ExVo 2022 competition. Full details and results can be found in the lastest release of the [ExVo White Paper](https://www.competitions.hume.ai/s/ICML_ExVo22_Preliminary_04192022.pdf).
+Baseline code for the three tracks of ExVo 2022 competition. Full details and results can be found in the lastest release of the [ExVo White Paper](https://www.competitions.hume.ai/s/ICML_ExVo22_Preliminary_04292022.pdf).
 
 **The Multi-task High-Dimensional Emotion, Age & Country Task ([ExVo-MultiTask](https://github.com/HumeAI/competitions/tree/main/ExVo2022/ExVo-MultiTask))**
 
