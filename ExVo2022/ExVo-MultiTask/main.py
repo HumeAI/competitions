@@ -264,34 +264,40 @@ def store_val_predictions(
     test_country = le.fit_transform(country_y[2])
     y_country_pred = torch.max(test_pred[1], 1)
 
-    df = labels[labels['Split'] == 'Val'].astype(dtype={'Country': 'int', 'Age': 'float',
+    label_df = labels[labels['Split'] == 'Val'].astype(dtype={'Country': 'int', 'Age': 'float',
                           'Amusement': 'float', 'Awe': 'float',
                           'Awkwardness': 'float', 'Distress': 'float',
                           'Excitement': 'float', 'Fear': 'float',
                           'Horror': 'float', 'Sadness': 'float',
                           'Surprise': 'float', 'Triumph': 'float'})
 
-    df = df.rename(columns={'File_ID': 'id', 'Subject_ID': 'speaker_id',
+    label_df = label_df.rename(columns={'File_ID': 'id', 'Subject_ID': 'speaker_id',
                             'Age': 'age', 'Country': 'country',
                             'Country_string': 'country_str'})
 
-    df['id'] = df['id'].apply(lambda x: x.replace("[", "").replace("]", "") + '.wav')
-    df['audio'] = df['id']
-    df['audio_path'] = df['id'].apply(lambda x: '/data2/atom/datasets/exvo/wav/' + x)
-    df['speaker_id'] = df['speaker_id'].apply(lambda x: int(x.split('Speaker_')[-1]) if isinstance(x, str) else x)
-    df['country_str'] = df['country_str'].apply(lambda x: x.strip().lower() if isinstance(x, str) else str(x))
-    df['emotion_intensity'] = df[['Amusement', 'Awe',
+    label_df['id'] = label_df['id'].apply(lambda x: x.replace("[", "").replace("]", "") + '.wav')
+    label_df['audio'] = label_df['id']
+    label_df['audio_path'] = label_df['id'].apply(lambda x: '/data2/atom/datasets/exvo/wav/' + x)
+    label_df['speaker_id'] = label_df['speaker_id'].apply(lambda x: int(x.split('Speaker_')[-1]) if isinstance(x, str) else x)
+    label_df['country_str'] = label_df['country_str'].apply(lambda x: x.strip().lower() if isinstance(x, str) else str(x))
+    label_df['emotion_intensity'] = label_df[['Amusement', 'Awe',
                                   'Awkwardness', 'Distress',
                                   'Excitement', 'Fear',
                                   'Horror', 'Sadness',
                                   'Surprise', 'Triumph']].values.tolist()
 
-    print(df)
+    label_df = label_df.drop(['Amusement', 'Awe',
+                  'Awkwardness', 'Distress',
+                  'Excitement', 'Fear',
+                  'Horror', 'Sadness',
+                  'Surprise', 'Triumph'], axis=1)
+
+    print(label_df.columns)
 
     dict_info = {
-        "File_ID": list(file_ids.values),
-        "Country": y_country_pred[1],
-        "Age": test_pred[2].flatten().detach().numpy(),
+        # "File_ID": list(file_ids.values),
+        "country_pred_label": y_country_pred[1],
+        "age_pred_label": test_pred[2].flatten().detach().numpy(),
         "Awe": np.array(test_pred[0][:, 0].detach().numpy()),
         "Excitement": np.array(test_pred[0][:, 1].detach().numpy()),
         "Amusement": np.array(test_pred[0][:, 2].detach().numpy()),
@@ -304,14 +310,36 @@ def store_val_predictions(
         "Surprise": np.array(test_pred[0][:, 9].detach().numpy()),
     }
 
-    prediction_csv = pd.DataFrame.from_dict(dict_info)
+    prediction_df = pd.DataFrame.from_dict(dict_info)
+
+    prediction_df['emotion_intensity_pred_label'] = prediction_df[['Amusement', 'Awe',
+                                                                   'Awkwardness', 'Distress',
+                                                                   'Excitement', 'Fear',
+                                                                   'Horror', 'Sadness',
+                                                                   'Surprise', 'Triumph']].values.tolist()
+
+    prediction_df = prediction_df.drop(['Amusement', 'Awe',
+                                        'Awkwardness', 'Distress',
+                                        'Excitement', 'Fear',
+                                        'Horror', 'Sadness',
+                                        'Surprise', 'Triumph'], axis=1)
+
+    prediction_df['input'] = pd.Series(label_df.to_dict(orient='records'))
 
     prediction_fname = checkpoint_fname.split('.')[0]
 
-    prediction_csv.to_csv(
-        f"preds/ExVo-Multi_val_{prediction_fname}.csv",
-        index=False,
-    )
+    # prediction_df.to_csv(
+    #     f"preds/ExVo-Multi_val_{prediction_fname}.csv",
+    #     index=False,
+    # )
+
+    write_jsonl_into_file(prediction_df, f"preds/ExVo-Multi_val_{prediction_fname}.jsonl")
+
+
+def write_jsonl_into_file(data, fname):
+    with open(str(fname), mode='w') as f:
+        for line in data:
+            f.write(line)
 
 
 def main():
