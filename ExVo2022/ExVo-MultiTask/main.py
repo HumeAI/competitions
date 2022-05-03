@@ -57,6 +57,7 @@ parser.add_argument("--store_pred", action="store_true", help="Store test set pr
 parser.add_argument("--save_csv", action="store_true", help="store overview of results")
 parser.add_argument("--pltloss", action="store_true", help="plot training loss")
 parser.add_argument("--n_seeds", type=int, default=3,choices=range(1, 6),help="number of seeds to try (default: 3, max: 6).")
+parser.add_argument("-ckpt", "--checkpoint_fname", type=str, default='', help="Checkpoint for validation")
 args = parser.parse_args()
 
 
@@ -237,6 +238,58 @@ def store_predictions(
     )
 
 
+def store_val_predictions(
+    feat_dimensions,
+    X,
+    labels,
+    classes,
+    feature_type,
+    country_y,
+    test_filename_group,
+    checkpoint_fname
+):
+    print(f"Predicting on the validation set...")
+
+    model = MultiTask(feat_dimensions).to(dev)
+    model.eval()
+    model.load_state_dict(torch.load(f"tmp/{checkpoint_fname}"))
+
+    file_ids = test_filename_group
+    test_pred, logsigma = model(torch.from_numpy(X[2].astype(np.float32)).to(dev))
+
+    for index, i in enumerate(test_pred):
+        test_pred[index] = test_pred[index].cpu()
+    le = preprocessing.LabelEncoder()
+
+    test_country = le.fit_transform(country_y[2])
+    y_country_pred = torch.max(test_pred[1], 1)
+
+    dict_info = {
+        "File_ID": list(file_ids.values),
+        "Country": y_country_pred[1],
+        "Age": test_pred[2].flatten().detach().numpy(),
+        "Awe": np.array(test_pred[0][:, 0].detach().numpy()),
+        "Excitement": np.array(test_pred[0][:, 1].detach().numpy()),
+        "Amusement": np.array(test_pred[0][:, 2].detach().numpy()),
+        "Awkwardness": np.array(test_pred[0][:, 3].detach().numpy()),
+        "Fear": np.array(test_pred[0][:, 4].detach().numpy()),
+        "Horror": np.array(test_pred[0][:, 5].detach().numpy()),
+        "Distress": np.array(test_pred[0][:, 6].detach().numpy()),
+        "Triumph": np.array(test_pred[0][:, 7].detach().numpy()),
+        "Sadness": np.array(test_pred[0][:, 8].detach().numpy()),
+        "Surprise": np.array(test_pred[0][:, 9].detach().numpy()),
+    }
+
+    prediction_csv = pd.DataFrame.from_dict(dict_info)
+
+    prediction_fname = checkpoint_fname.split('.')
+
+    prediction_csv.to_csv(
+        f"preds/ExVo-Multi_val_{prediction_fname}.csv",
+        index=False,
+    )
+
+
 def main():
     data_dir = args.directory
     labels = pd.read_csv(f"{data_dir}{args.labels}")
@@ -378,5 +431,118 @@ def main():
         )
 
 
+def val_main():
+    data_dir = args.directory
+    labels = pd.read_csv(f"{data_dir}{args.labels}")
+    feature_type = args.features
+    plot_loss = args.pltloss
+    timestamp = time.strftime("%d%m%Y-%H%M%S")
+    targets = [
+        "Awe",
+        "Excitement",
+        "Amusement",
+        "Awkwardness",
+        "Fear",
+        "Horror",
+        "Distress",
+        "Triumph",
+        "Sadness",
+        "Surprise",
+        "Age",
+        "Country",
+    ]
+    classes = targets[:10]
+
+    plot_folder = Path("plots/")
+    if not plot_folder.is_file():
+        plot_folder.mkdir(exist_ok=True)
+
+    pred_folder = Path("preds/")
+    if not pred_folder.is_file():
+        pred_folder.mkdir(exist_ok=True)
+
+    results_folder = Path("results/")
+    if not results_folder.is_file():
+        results_folder.mkdir(exist_ok=True)
+
+    # DataLoader
+    if "/" in feature_type:
+        store_name = feature_type.replace("/", "")
+    else:
+        store_name = feature_type
+
+    if not os.path.exists(f"tmp/{store_name}_val_filename.csv"):
+        X, high, age, country, feat_dimensions, test_filename_group = Dataloader.create(
+            labels,
+            True,
+            data_dir,
+            feature_type,
+            targets[:10],
+            targets[10],
+            targets[11],
+            store_name,
+            return_val=True
+        )
+    else:
+        X, high, age, country, feat_dimensions, test_filename_group = Dataloader.load(
+            feature_type, store_name, return_val=True
+        )
+
+    # Scale Data
+    scaler = StandardScaler()
+
+    X, emo_y, age_y, country_y = Processing.normalise(scaler, X, high, age, country)
+
+    hmean_list, ccc_list, uar_list, mae_list = [], [], [], []
+
+    store_val_predictions(
+        feat_dimensions,
+        X,
+        labels,
+        feature_type,
+        country_y,
+        test_filename_group,
+        args.checkpoint_fname,
+    )
+
+    # max_hmean = np.max(hmean_list)
+    # max_index_hmean = np.argmax(hmean_list)
+    # seed_best, std_hmean = seed_list[max_index_hmean], np.std(hmean_list)
+    # ccc_best, uar_best, mae_best = (
+    #     ccc_list[max_index_hmean],
+    #     uar_list[max_index_hmean],
+    #     mae_list[max_index_hmean],
+    # )
+    #
+    # print(
+    #     f"Harmonic Mean, Validation Best with seed [{seed_best}]: {max_hmean}, STD: {np.round(std_hmean,4)}"
+    # )
+    # print(
+    #     f"For this Harmonic Mean, CCC {np.round(ccc_best,4)} | UAR {np.round(uar_best,4)} | MAE {np.round(mae_best,4)}"
+    # )
+    #
+    # if args.save_csv:
+    #     dict_results = {
+    #         "Timestamp": timestamp,
+    #         "Feature Type": feature_type,
+    #         "Learning Rate": args.learningrate,
+    #         "Batch Size": args.batchsize,
+    #         "Max HMean": max_hmean,
+    #         "Std HMean": std_hmean,
+    #         "Seed": seed_best,
+    #         "n_seeds": args.n_seeds,
+    #         f"CCC_{seed_best}": ccc_best,
+    #         f"UAR_{seed_best}": uar_best,
+    #         f"MAE_{seed_best}": mae_best,
+    #     }
+    #     results_csv = pd.DataFrame([dict_results])
+    #     results_csv.to_csv(
+    #         f"results/{timestamp}_{store_name}_{args.learningrate}_{args.batchsize}_results.csv",
+    #         index=False,
+    #     )
+
 if __name__ == "__main__":
-    main()
+    if args.checkpoint_fname == '':
+        main()
+    else:
+        val_main()

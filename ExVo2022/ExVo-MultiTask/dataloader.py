@@ -24,12 +24,14 @@ class Dataloader:
         age_class,
         country_classes,
         store_name,
+        return_val=False
     ):
         print("No stored files found, creating from scratch ... ")
         train_X, val_X, test_X = [], [], []
         train_y, val_y, test_y = [], [], []
         train_age, val_age, test_age = [], [], []
         train_country, val_country, test_country = [], [], []
+        val_filename = []
         test_filename = []
 
         tmp_folder = Path("tmp/")
@@ -88,6 +90,7 @@ class Dataloader:
                     val_y.append(label_id_high)
                     val_age.append(label_id_age)
                     val_country.append(label_id_country)
+                    val_filename.append(file_id)
                 elif partition == "Test":
                     test_y.append(label_id_high)
                     test_age.append(label_id_age)
@@ -114,6 +117,8 @@ class Dataloader:
             pd.DataFrame(val_country),
             pd.DataFrame(test_country),
         )
+
+        val_filename_group = pd.DataFrame(val_filename)
         test_filename_group = pd.DataFrame(test_filename)
 
         print("Saving data ...")
@@ -135,7 +140,9 @@ class Dataloader:
             test_country_group.to_csv(
                 f"tmp/{store_name}_test_y_country.csv", index=False
             )
-
+            val_filename_group.to_csv(
+                f"tmp/{store_name}_val_filename.csv", index=False
+            )
             test_filename_group.to_csv(
                 f"tmp/{store_name}_test_filename.csv", index=False
             )
@@ -144,9 +151,13 @@ class Dataloader:
         high = [train_y_group, val_y_group, test_y_group]
         age = [train_age_group, val_age_group, test_age_group]
         country = [train_country_group, val_country_group, test_country_group]
-        return comb, high, age, country, feat_dimensions, test_filename_group
 
-    def load(feature_type, store_name):
+        if return_val:
+            return comb, high, age, country, feat_dimensions, test_filename_group, val_filename_group
+        else:
+            return comb, high, age, country, feat_dimensions, test_filename_group
+
+    def load(feature_type, store_name, return_val=False):
         feat_dict = {
             "ComParE": [";", "infer", 2, 6373],
             "eGeMAPS": [";", "infer", 2, 88],
@@ -184,10 +195,15 @@ class Dataloader:
             pd.read_csv(f"tmp/{store_name}_val_y_country.csv"),
             pd.read_csv(f"tmp/{store_name}_test_y_country.csv"),
         )
+        val_filename_group = pd.read_csv(f"tmp/{store_name}_val_filename.csv")
         test_filename_group = pd.read_csv(f"tmp/{store_name}_test_filename.csv")
 
         comb = [train_X_group, val_X_group, test_X_group]
         high = [train_y_group, val_y_group, test_y_group]
         age = [train_age_group, val_age_group, test_age_group]
         country = [train_country_group, val_country_group, test_country_group]
-        return comb, high, age, country, feat_dimensions, test_filename_group
+
+        if return_val:
+            return comb, high, age, country, feat_dimensions, test_filename_group
+        else:
+            return comb, high, age, country, feat_dimensions, test_filename_group, val_filename_group
