@@ -264,6 +264,30 @@ def store_val_predictions(
     test_country = le.fit_transform(country_y[2])
     y_country_pred = torch.max(test_pred[1], 1)
 
+    df = labels[labels['Split'] == 'Val'].astype(dtype={'Country': 'int', 'Age': 'float',
+                          'Amusement': 'float', 'Awe': 'float',
+                          'Awkwardness': 'float', 'Distress': 'float',
+                          'Excitement': 'float', 'Fear': 'float',
+                          'Horror': 'float', 'Sadness': 'float',
+                          'Surprise': 'float', 'Triumph': 'float'})
+
+    df = df.rename(columns={'File_ID': 'id', 'Subject_ID': 'speaker_id',
+                            'Age': 'age', 'Country': 'country',
+                            'Country_string': 'country_str'})
+
+    df['id'] = df['id'].apply(lambda x: x.replace("[", "").replace("]", "") + '.wav')
+    df['audio'] = df['id']
+    df['audio_path'] = df['id'].apply(lambda x: '/data2/atom/datasets/exvo/wav/' + x)
+    df['speaker_id'] = df['speaker_id'].apply(lambda x: int(x.split('Speaker_')[-1]) if isinstance(x, str) else x)
+    df['country_str'] = df['country_str'].apply(lambda x: x.strip().lower() if isinstance(x, str) else str(x))
+    df['emotion_intensity'] = df[['Amusement', 'Awe',
+                                  'Awkwardness', 'Distress',
+                                  'Excitement', 'Fear',
+                                  'Horror', 'Sadness',
+                                  'Surprise', 'Triumph']].values.tolist()
+
+    print(df)
+
     dict_info = {
         "File_ID": list(file_ids.values),
         "Country": y_country_pred[1],
