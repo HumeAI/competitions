@@ -333,7 +333,7 @@ def store_val_predictions(
     #     index=False,
     # )
 
-    write_jsonl_into_file(prediction_df, f"preds/ExVo-Multi_val_{prediction_fname}.jsonl")
+    write_jsonl_into_file(prediction_df.to_dict(orient='records'), f"preds/ExVo-Multi_val_{prediction_fname}.jsonl")
 
 
 def write_jsonl_into_file(data, fname):
