@@ -255,7 +255,7 @@ def store_val_predictions(
     model.load_state_dict(torch.load(f"tmp/{checkpoint_fname}"))
 
     file_ids = test_filename_group
-    test_pred, logsigma = model(torch.from_numpy(X[2].astype(np.float32)).to(dev))
+    test_pred, logsigma = model(torch.from_numpy(X[1].astype(np.float32)).to(dev))
 
     for index, i in enumerate(test_pred):
         test_pred[index] = test_pred[index].cpu()
@@ -282,7 +282,7 @@ def store_val_predictions(
 
     prediction_csv = pd.DataFrame.from_dict(dict_info)
 
-    prediction_fname = checkpoint_fname.split('.')
+    prediction_fname = checkpoint_fname.split('.')[0]
 
     prediction_csv.to_csv(
         f"preds/ExVo-Multi_val_{prediction_fname}.csv",
