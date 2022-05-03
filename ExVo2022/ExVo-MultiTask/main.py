@@ -499,9 +499,10 @@ def val_main():
         feat_dimensions,
         X,
         labels,
+        classes,
         feature_type,
         country_y,
-        test_filename_group,
+        val_filename_group,
         args.checkpoint_fname,
     )
 
