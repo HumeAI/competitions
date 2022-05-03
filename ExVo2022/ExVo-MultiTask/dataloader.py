@@ -204,6 +204,6 @@ class Dataloader:
         country = [train_country_group, val_country_group, test_country_group]
 
         if return_val:
-            return comb, high, age, country, feat_dimensions, test_filename_group
-        else:
             return comb, high, age, country, feat_dimensions, test_filename_group, val_filename_group
+        else:
+            return comb, high, age, country, feat_dimensions, test_filename_group

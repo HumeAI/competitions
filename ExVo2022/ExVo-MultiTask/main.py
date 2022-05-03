@@ -472,7 +472,7 @@ def val_main():
         store_name = feature_type
 
     if not os.path.exists(f"tmp/{store_name}_val_filename.csv"):
-        X, high, age, country, feat_dimensions, test_filename_group = Dataloader.create(
+        X, high, age, country, feat_dimensions, test_filename_group, val_filename_group = Dataloader.create(
             labels,
             True,
             data_dir,
@@ -484,7 +484,7 @@ def val_main():
             return_val=True
         )
     else:
-        X, high, age, country, feat_dimensions, test_filename_group = Dataloader.load(
+        X, high, age, country, feat_dimensions, test_filename_group, val_filename_group = Dataloader.load(
             feature_type, store_name, return_val=True
         )
 
