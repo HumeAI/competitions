@@ -14,6 +14,7 @@ import numpy as np
 from tqdm import tqdm
 import random
 from pathlib import Path
+import jsonlines
 
 from scipy import stats
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
@@ -398,7 +399,7 @@ def store_val_predictions(
 
 
 def write_jsonl_into_file(data, fname):
-    with open(str(fname), mode='w') as f:
+    with jsonlines.open(str(fname), mode='w') as f:
         for line in data:
             f.write(line)
 
