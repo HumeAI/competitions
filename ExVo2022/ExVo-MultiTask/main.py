@@ -266,22 +266,57 @@ def store_val_predictions(
     test_country = le.fit_transform(country_y[2])
     y_country_pred = torch.max(test_pred[1], 1)
 
-    label_df = labels[labels['Split'] == 'Val'].astype(dtype={'Country': 'int', 'Age': 'float',
-                          'Amusement': 'float', 'Awe': 'float',
-                          'Awkwardness': 'float', 'Distress': 'float',
-                          'Excitement': 'float', 'Fear': 'float',
-                          'Horror': 'float', 'Sadness': 'float',
-                          'Surprise': 'float', 'Triumph': 'float'})
+    # label_df = labels[labels['Split'] == 'Val'].astype(dtype={'Country': 'int', 'Age': 'float',
+    #                       'Amusement': 'float', 'Awe': 'float',
+    #                       'Awkwardness': 'float', 'Distress': 'float',
+    #                       'Excitement': 'float', 'Fear': 'float',
+    #                       'Horror': 'float', 'Sadness': 'float',
+    #                       'Surprise': 'float', 'Triumph': 'float'})
+    #
+    # label_df = label_df.rename(columns={'File_ID': 'id', 'Subject_ID': 'speaker_id',
+    #                         'Age': 'age', 'Country': 'country',
+    #                         'Country_string': 'country_str'})
+    #
+    # label_df['id'] = label_df['id'].apply(lambda x: x.replace("[", "").replace("]", "") + '.wav')
+    # label_df['audio'] = label_df['id']
+    # label_df['audio_path'] = label_df['id'].apply(lambda x: '/data2/atom/datasets/exvo/wav/' + x)
+    # label_df['speaker_id'] = label_df['speaker_id'].apply(lambda x: int(x.split('Speaker_')[-1]) if isinstance(x, str) else x)
+    # label_df['country_str'] = label_df['country_str'].apply(lambda x: x.strip().lower() if isinstance(x, str) else str(x))
+    # label_df['emotion_intensity'] = label_df[['Amusement', 'Awe',
+    #                               'Awkwardness', 'Distress',
+    #                               'Excitement', 'Fear',
+    #                               'Horror', 'Sadness',
+    #                               'Surprise', 'Triumph']].values.tolist()
+    #
+    # label_df = label_df.drop(['Amusement', 'Awe',
+    #               'Awkwardness', 'Distress',
+    #               'Excitement', 'Fear',
+    #               'Horror', 'Sadness',
+    #               'Surprise', 'Triumph'], axis=1)
+    #
+    # print(label_df.columns)
 
-    label_df = label_df.rename(columns={'File_ID': 'id', 'Subject_ID': 'speaker_id',
-                            'Age': 'age', 'Country': 'country',
-                            'Country_string': 'country_str'})
+    label_dict_info = {
+        'id': list(file_ids.values),
+        "country": list(country_y[1].values),
+        "age_pred_label": list(age_y[1].values),
+        "Awe": list(emo_y[1].iloc[:, 0].values),
+        "Excitement": list(emo_y[1].iloc[:, 1].values),
+        "Amusement": list(emo_y[1].iloc[:, 2].values),
+        "Awkwardness": list(emo_y[1].iloc[:, 3].values),
+        "Fear": list(emo_y[1].iloc[:, 4].values),
+        "Horror": list(emo_y[1].iloc[:, 5].values),
+        "Distress": list(emo_y[1].iloc[:, 6].values),
+        "Triumph": list(emo_y[1].iloc[:, 7].values),
+        "Sadness": list(emo_y[1].iloc[:, 8].values),
+        "Surprise": list(emo_y[1].iloc[:, 9].values),
+    }
 
-    label_df['id'] = label_df['id'].apply(lambda x: x.replace("[", "").replace("]", "") + '.wav')
+    label_df = pd.DataFrame.from_dict(label_dict_info)
+
+    label_df['id'] = label_df['id'].apply(lambda x: x + '.wav')
     label_df['audio'] = label_df['id']
     label_df['audio_path'] = label_df['id'].apply(lambda x: '/data2/atom/datasets/exvo/wav/' + x)
-    label_df['speaker_id'] = label_df['speaker_id'].apply(lambda x: int(x.split('Speaker_')[-1]) if isinstance(x, str) else x)
-    label_df['country_str'] = label_df['country_str'].apply(lambda x: x.strip().lower() if isinstance(x, str) else str(x))
     label_df['emotion_intensity'] = label_df[['Amusement', 'Awe',
                                   'Awkwardness', 'Distress',
                                   'Excitement', 'Fear',
