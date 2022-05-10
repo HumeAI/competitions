@@ -258,6 +258,8 @@ def store_val_predictions(
     model.load_state_dict(torch.load(f"tmp/{checkpoint_fname}"))
 
     file_ids = test_filename_group
+    print(file_ids)
+    
     test_pred, logsigma = model(torch.from_numpy(X[1].astype(np.float32)).to(dev))
 
     for index, i in enumerate(test_pred):
@@ -340,6 +342,9 @@ def store_val_predictions(
 
     val_pred = test_pred
     val_result = []
+    
+    print(emo_y[1].iloc[0, :])
+
     for j in classes:
         identifier = classes.index(j)
         ccc_val = EvalMetrics.CCC(
@@ -359,6 +364,9 @@ def store_val_predictions(
     print(f"Country UAR: {np.round(country_uar,4)}")
 
     age_mae = EvalMetrics.MAE(age_y[1], val_pred[2].detach().numpy())
+    
+    print(age_y[1])
+    
     inverted_mae = 1 / age_mae
     print(f"Age MAE: {np.round(age_mae,4)}\n~MAE: {np.round(inverted_mae,4)}\n------")
 
