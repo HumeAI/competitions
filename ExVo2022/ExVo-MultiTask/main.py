@@ -244,6 +244,8 @@ def store_val_predictions(
     labels,
     classes,
     feature_type,
+    emo_y,
+    age_y,
     country_y,
     test_filename_group,
     checkpoint_fname
@@ -334,6 +336,30 @@ def store_val_predictions(
     # )
 
     write_jsonl_into_file(prediction_df.to_dict(orient='records'), f"preds/ExVo-Multi_val_{prediction_fname}.jsonl")
+
+    val_pred = test_pred
+    val_result = []
+    for j in classes:
+        identifier = classes.index(j)
+        ccc_val = EvalMetrics.CCC(
+            emo_y[1].iloc[:, identifier],
+            val_pred[0][:, identifier].flatten().detach().numpy(),
+        )
+        print(f"Val CCC \t {j.capitalize()}: \t {ccc_val}", flush=True)
+        val_result.append(ccc_val)
+    print(
+        f"------\nEmotion Mean CCC: {np.round(np.mean(val_result),4)}\nSTD: {np.round(np.std(val_result),4)}"
+    )
+
+    le = preprocessing.LabelEncoder()
+    val_country = le.fit_transform(country_y[1])
+    y_country = torch.max(val_pred[1], 1)
+    country_uar = EvalMetrics.UAR(country_y[1], y_country.indices)
+    print(f"Country UAR: {np.round(country_uar,4)}")
+
+    age_mae = EvalMetrics.MAE(age_y[1], val_pred[2].detach().numpy())
+    inverted_mae = 1 / age_mae
+    print(f"Age MAE: {np.round(age_mae,4)}\n~MAE: {np.round(inverted_mae,4)}\n------")
 
 
 def write_jsonl_into_file(data, fname):
@@ -545,54 +571,19 @@ def val_main():
 
     X, emo_y, age_y, country_y = Processing.normalise(scaler, X, high, age, country)
 
-    hmean_list, ccc_list, uar_list, mae_list = [], [], [], []
-
     store_val_predictions(
         feat_dimensions,
         X,
         labels,
         classes,
         feature_type,
+        emo_y,
+        age_y,
         country_y,
         val_filename_group,
         args.checkpoint_fname,
     )
 
-    # max_hmean = np.max(hmean_list)
-    # max_index_hmean = np.argmax(hmean_list)
-    # seed_best, std_hmean = seed_list[max_index_hmean], np.std(hmean_list)
-    # ccc_best, uar_best, mae_best = (
-    #     ccc_list[max_index_hmean],
-    #     uar_list[max_index_hmean],
-    #     mae_list[max_index_hmean],
-    # )
-    #
-    # print(
-    #     f"Harmonic Mean, Validation Best with seed [{seed_best}]: {max_hmean}, STD: {np.round(std_hmean,4)}"
-    # )
-    # print(
-    #     f"For this Harmonic Mean, CCC {np.round(ccc_best,4)} | UAR {np.round(uar_best,4)} | MAE {np.round(mae_best,4)}"
-    # )
-    #
-    # if args.save_csv:
-    #     dict_results = {
-    #         "Timestamp": timestamp,
-    #         "Feature Type": feature_type,
-    #         "Learning Rate": args.learningrate,
-    #         "Batch Size": args.batchsize,
-    #         "Max HMean": max_hmean,
-    #         "Std HMean": std_hmean,
-    #         "Seed": seed_best,
-    #         "n_seeds": args.n_seeds,
-    #         f"CCC_{seed_best}": ccc_best,
-    #         f"UAR_{seed_best}": uar_best,
-    #         f"MAE_{seed_best}": mae_best,
-    #     }
-    #     results_csv = pd.DataFrame([dict_results])
-    #     results_csv.to_csv(
-    #         f"results/{timestamp}_{store_name}_{args.learningrate}_{args.batchsize}_results.csv",
-    #         index=False,
-    #     )
 
 if __name__ == "__main__":
     if args.checkpoint_fname == '':
