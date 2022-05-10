@@ -28,7 +28,6 @@ def main(dataset_params, eval_params):
     evaluation = Evaluation(dataset_params, eval_params)
     evaluation.start()
 
-
 if __name__ == '__main__':
     args = parser.parse_args()
     

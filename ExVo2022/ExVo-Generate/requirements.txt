@@ -1,0 +1,13 @@
+torch
+librosa
+torchaudio
+torchvision
+pandas
+pathlib
+argparse
+soundfile
+pyrubberband
+scipy
+tqdm
+appdirs
+six
