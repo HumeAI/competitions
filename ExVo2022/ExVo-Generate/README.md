@@ -49,7 +49,7 @@ python fid.py --samples_1 <path_to_folder_1> --samples_2 All
 
 ```
 
-*Please note*, the currently provided precomputed statistics are based on the orginally distributed `wav` files. We will update the repository shortly to include a model and statistics based on the recently distributed `webm` data. 
+[update 10 May 2022]: We have updated the repository to include the model and precomputed statistics based on the recently distributed `webm` data. For reproducability, we also include the script to calculate the gaussian statistics `save_statistics.py`. 
 
 
 
