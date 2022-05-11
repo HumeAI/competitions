@@ -83,7 +83,6 @@ def baseline(
     lmse, lclass = nn.MSELoss(), nn.CrossEntropyLoss()
     es_delta = 0.1
     val_result, loss_res, val_loss_res = [], [], []
-    
     model = MultiTask(feat_dimensions).to(dev)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0.0001)
 
