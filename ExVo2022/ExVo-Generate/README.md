@@ -33,21 +33,24 @@ python loaders/train.py --data_path <wav_path> --csv_path <path_to_csv> --emotio
 ```
 
 ## Calculating FID between original and generated samples
-Included in `fid/` are precomputed gaussian statistics for the validation sets of each emotion (excluding Triumph). To compute FID between 2 sets of samples, use the `fid.py` script:
+Included in `fid/` are precomputed gaussian statistics for the validation sets of each emotion (as well as one for the whole dataset). The `_wav.pkl` and  `_webm.pkl` are provided. 
+
+Additionally, we provide 2 helper scripts. `save_statistics.py` can be used to save the activation statistics (i.e. the gaussian statistics) of the trained model run on a folder of `.wav` samples:
+```
+# The below saves the activation statistics of the .wav samples in <wav_path> in fid/<name>.pkl
+python save_statistics.py --samples_1 <wav_path> --name <name>
+```
+
+To compute FID between 2 sets of samples, use the `fid.py` script:
 ```
 # Between 2 folders of .wav samples
 python fid.py --samples_1 <path_to_folder_1> --samples_2 <path_to_folder_2>
 
-# Between a folder of .wav samples and the validation set of an emotion
-python fid.py --samples_1 <path_to_folder_1> --samples_2 <Emotion_name>
+# Between a folder of .wav samples and precomputed statistics in <name.pkl
+python fid.py --samples_1 <path_to_folder_1> --samples_2 <name>.pkl
 
-# For example:
-python fid.py --samples_1 ./wav_samples/amusement --samples_2 Amusement
-
-# Between a folder of .wav samples and the validation set of all emotions
-python fid.py --samples_1 <path_to_folder_1> --samples_2 All
-
-```
+# For example, the below computes the fid of the generated samples and the precomputed Amusement validation activations:
+python fid.py --samples_1 ./wav_samples/amusement --samples_2 Amusement.pkl
 
 [update 10 May 2022]: We have updated the repository to include the model and precomputed statistics based on the recently distributed `webm` data. For reproducability, we also include the script to calculate the gaussian statistics `save_statistics.py`. 
 
