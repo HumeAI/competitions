@@ -83,7 +83,7 @@ def baseline(
     lmse, lclass = nn.MSELoss(), nn.CrossEntropyLoss()
     es_delta = 0.1
     val_result, loss_res, val_loss_res = [], [], []
-
+    
     model = MultiTask(feat_dimensions).to(dev)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=0.0001)
 
@@ -299,25 +299,27 @@ def store_val_predictions(
     #
     # print(label_df.columns)
 
+    print(country_y[1])
+
     label_dict_info = {
-        'id': list(file_ids.values),
-        "country": list(country_y[1].values),
-        "age_pred_label": list(age_y[1].values),
-        "Awe": list(emo_y[1].iloc[:, 0].values),
-        "Excitement": list(emo_y[1].iloc[:, 1].values),
-        "Amusement": list(emo_y[1].iloc[:, 2].values),
-        "Awkwardness": list(emo_y[1].iloc[:, 3].values),
-        "Fear": list(emo_y[1].iloc[:, 4].values),
-        "Horror": list(emo_y[1].iloc[:, 5].values),
-        "Distress": list(emo_y[1].iloc[:, 6].values),
-        "Triumph": list(emo_y[1].iloc[:, 7].values),
-        "Sadness": list(emo_y[1].iloc[:, 8].values),
-        "Surprise": list(emo_y[1].iloc[:, 9].values),
+        'id': file_ids['0'].tolist(),
+        "country": country_y[1]['0'].astype(int).tolist(),
+        "age": age_y[1]['0'].tolist(),
+        "Awe": emo_y[1].iloc[:, 0].tolist(),
+        "Excitement": emo_y[1].iloc[:, 1].tolist(),
+        "Amusement": emo_y[1].iloc[:, 2].tolist(),
+        "Awkwardness": emo_y[1].iloc[:, 3].tolist(),
+        "Fear": emo_y[1].iloc[:, 4].tolist(),
+        "Horror": emo_y[1].iloc[:, 5].tolist(),
+        "Distress": emo_y[1].iloc[:, 6].tolist(),
+        "Triumph": emo_y[1].iloc[:, 7].tolist(),
+        "Sadness": emo_y[1].iloc[:, 8].tolist(),
+        "Surprise": emo_y[1].iloc[:, 9].tolist(),
     }
 
     label_df = pd.DataFrame.from_dict(label_dict_info)
 
-    label_df['id'] = label_df['id'].apply(lambda x: x + '.wav')
+    label_df['id'] = label_df['id'].apply(lambda x: str(x) + '.wav')
     label_df['audio'] = label_df['id']
     label_df['audio_path'] = label_df['id'].apply(lambda x: '/data2/atom/datasets/exvo/wav/' + x)
     label_df['emotion_intensity'] = label_df[['Amusement', 'Awe',
@@ -331,6 +333,8 @@ def store_val_predictions(
                   'Excitement', 'Fear',
                   'Horror', 'Sadness',
                   'Surprise', 'Triumph'], axis=1)
+    
+    print(label_df)
 
     print(label_df.columns)
 
@@ -377,8 +381,6 @@ def store_val_predictions(
 
     val_pred = test_pred
     val_result = []
-    
-    print(emo_y[1].iloc[0, :])
 
     for j in classes:
         identifier = classes.index(j)
@@ -399,8 +401,6 @@ def store_val_predictions(
     print(f"Country UAR: {np.round(country_uar,4)}")
 
     age_mae = EvalMetrics.MAE(age_y[1], val_pred[2].detach().numpy())
-    
-    print(age_y[1])
     
     inverted_mae = 1 / age_mae
     print(f"Age MAE: {np.round(age_mae,4)}\n~MAE: {np.round(inverted_mae,4)}\n------")

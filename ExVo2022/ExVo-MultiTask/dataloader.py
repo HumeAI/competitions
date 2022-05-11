@@ -161,7 +161,7 @@ class Dataloader:
         feat_dict = {
             "ComParE": [";", "infer", 2, 6373],
             "eGeMAPS": [";", "infer", 2, 88],
-            "DeepSpectrum": [",", "infer", 2, 4095],
+            "DeepSpectrum": [",", "infer", 2, 4096],
             "openXBOW/125": [",", None, 1, 125],
             "openXBOW/250": [",", None, 1, 250],
             "openXBOW/500": [",", None, 1, 500],
@@ -195,7 +195,8 @@ class Dataloader:
             pd.read_csv(f"tmp/{store_name}_val_y_country.csv"),
             pd.read_csv(f"tmp/{store_name}_test_y_country.csv"),
         )
-        val_filename_group = pd.read_csv(f"tmp/{store_name}_val_filename.csv")
+        if return_val:
+            val_filename_group = pd.read_csv(f"tmp/{store_name}_val_filename.csv")
         test_filename_group = pd.read_csv(f"tmp/{store_name}_test_filename.csv")
 
         comb = [train_X_group, val_X_group, test_X_group]
