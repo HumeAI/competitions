@@ -51,6 +51,7 @@ python fid.py --samples_1 <path_to_folder_1> --samples_2 <name>.pkl
 
 # For example, the below computes the fid of the generated samples and the precomputed Amusement validation activations:
 python fid.py --samples_1 ./wav_samples/amusement --samples_2 Amusement.pkl
+```
 
 [update 10 May 2022]: We have updated the repository to include the model and precomputed statistics based on the recently distributed `webm` data. For reproducability, we also include the script to calculate the gaussian statistics `save_statistics.py`. 
 
