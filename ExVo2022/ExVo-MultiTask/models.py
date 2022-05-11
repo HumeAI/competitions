@@ -40,3 +40,78 @@ class MultiTask(nn.Module):
         age = self.age_layer(h_shared)
         country = self.country_layer(h_shared)
         return [emotion, country, age], self.logsigma
+
+
+class SingleTaskEmotion(nn.Module):
+    def __init__(self, feat_dimensions):
+        super().__init__()
+
+        self.share_layer = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(feat_dimensions, 128),
+            nn.LayerNorm(128),
+            nn.LeakyReLU(),
+            nn.Linear(128, 64),
+            nn.LayerNorm(64),
+            nn.LeakyReLU())
+
+        self.emotion_layer = nn.Sequential(
+            nn.Linear(64, 32), nn.LeakyReLU(), nn.Linear(32, 10)
+        )
+
+        self.logsigma = nn.Parameter(torch.FloatTensor([-0.33, -0.33, -0.33]))
+
+    def forward(self, x):
+        h_shared = self.share_layer(x)
+        emotion = torch.sigmoid(self.emotion_layer(h_shared))
+        return [emotion], self.logsigma
+
+
+class SingleTaskAge(nn.Module):
+    def __init__(self, feat_dimensions):
+        super().__init__()
+
+        self.share_layer = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(feat_dimensions, 128),
+            nn.LayerNorm(128),
+            nn.LeakyReLU(),
+            nn.Linear(128, 64),
+            nn.LayerNorm(64),
+            nn.LeakyReLU())
+
+        self.age_layer = nn.Sequential(
+            nn.Linear(64, 32), nn.LeakyReLU(), nn.Linear(32, 1)
+        )
+
+        self.logsigma = nn.Parameter(torch.FloatTensor([-0.33, -0.33, -0.33]))
+
+    def forward(self, x):
+        h_shared = self.share_layer(x)
+        age = self.age_layer(h_shared)
+        return [age], self.logsigma
+
+
+class SingleTaskCountry(nn.Module):
+    def __init__(self, feat_dimensions):
+        super().__init__()
+
+        self.share_layer = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(feat_dimensions, 128),
+            nn.LayerNorm(128),
+            nn.LeakyReLU(),
+            nn.Linear(128, 64),
+            nn.LayerNorm(64),
+            nn.LeakyReLU())
+
+        self.country_layer = nn.Sequential(
+            nn.Linear(64, 32), nn.LeakyReLU(), nn.Linear(32, 4)
+        )
+
+        self.logsigma = nn.Parameter(torch.FloatTensor([-0.33, -0.33, -0.33]))
+
+    def forward(self, x):
+        h_shared = self.share_layer(x)
+        country = self.country_layer(h_shared)
+        return [country], self.logsigma
