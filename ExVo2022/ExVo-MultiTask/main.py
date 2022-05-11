@@ -258,7 +258,6 @@ def store_val_predictions(
     model.load_state_dict(torch.load(f"tmp/{checkpoint_fname}"))
 
     file_ids = test_filename_group
-    print(file_ids)
     
     test_pred, logsigma = model(torch.from_numpy(X[1].astype(np.float32)).to(dev))
 
@@ -268,38 +267,6 @@ def store_val_predictions(
 
     test_country = le.fit_transform(country_y[2])
     y_country_pred = torch.max(test_pred[1], 1)
-
-    # label_df = labels[labels['Split'] == 'Val'].astype(dtype={'Country': 'int', 'Age': 'float',
-    #                       'Amusement': 'float', 'Awe': 'float',
-    #                       'Awkwardness': 'float', 'Distress': 'float',
-    #                       'Excitement': 'float', 'Fear': 'float',
-    #                       'Horror': 'float', 'Sadness': 'float',
-    #                       'Surprise': 'float', 'Triumph': 'float'})
-    #
-    # label_df = label_df.rename(columns={'File_ID': 'id', 'Subject_ID': 'speaker_id',
-    #                         'Age': 'age', 'Country': 'country',
-    #                         'Country_string': 'country_str'})
-    #
-    # label_df['id'] = label_df['id'].apply(lambda x: x.replace("[", "").replace("]", "") + '.wav')
-    # label_df['audio'] = label_df['id']
-    # label_df['audio_path'] = label_df['id'].apply(lambda x: '/data2/atom/datasets/exvo/wav/' + x)
-    # label_df['speaker_id'] = label_df['speaker_id'].apply(lambda x: int(x.split('Speaker_')[-1]) if isinstance(x, str) else x)
-    # label_df['country_str'] = label_df['country_str'].apply(lambda x: x.strip().lower() if isinstance(x, str) else str(x))
-    # label_df['emotion_intensity'] = label_df[['Amusement', 'Awe',
-    #                               'Awkwardness', 'Distress',
-    #                               'Excitement', 'Fear',
-    #                               'Horror', 'Sadness',
-    #                               'Surprise', 'Triumph']].values.tolist()
-    #
-    # label_df = label_df.drop(['Amusement', 'Awe',
-    #               'Awkwardness', 'Distress',
-    #               'Excitement', 'Fear',
-    #               'Horror', 'Sadness',
-    #               'Surprise', 'Triumph'], axis=1)
-    #
-    # print(label_df.columns)
-
-    print(country_y[1])
 
     label_dict_info = {
         'id': file_ids['0'].tolist(),
@@ -333,10 +300,6 @@ def store_val_predictions(
                   'Excitement', 'Fear',
                   'Horror', 'Sadness',
                   'Surprise', 'Triumph'], axis=1)
-    
-    print(label_df)
-
-    print(label_df.columns)
 
     dict_info = {
         # "File_ID": list(file_ids.values),
@@ -371,11 +334,6 @@ def store_val_predictions(
     prediction_df['input'] = pd.Series(label_df.to_dict(orient='records'))
 
     prediction_fname = checkpoint_fname.split('.')[0]
-
-    # prediction_df.to_csv(
-    #     f"preds/ExVo-Multi_val_{prediction_fname}.csv",
-    #     index=False,
-    # )
 
     write_jsonl_into_file(prediction_df.to_dict(orient='records'), f"preds/ExVo-Multi_val_{prediction_fname}.jsonl")
 
