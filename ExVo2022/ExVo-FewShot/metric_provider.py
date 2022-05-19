@@ -99,8 +99,8 @@ class MetricProvider(nn.Module):
         y_true_mean = torch.mean(y_true)
         y_pred_mean = torch.mean(y_pred)
 
-        y_true_var = torch.var(y_true)
-        y_pred_var = torch.var(y_pred)
+        y_true_var = torch.var(y_true, unbiased=False)
+        y_pred_var = torch.var(y_pred, unbiased=False)
 
         mean_cent_prod = torch.mean((y_pred - y_pred_mean) * (y_true - y_true_mean))
 
