@@ -1,0 +1,19 @@
+data:
+  data_root: ../../data
+  labels_file: ../../data/labels_rapport/daikon_rapport_labels_public.csv
+  modality: audio
+  num_workers: 4
+
+model:
+  hidden_dim: 256
+  dropout: 0.2
+
+training:
+  batch_size: 256
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  max_epochs: 30
+  early_stopping_patience: 7
+
+output:
+  run_dir: ./runs/rapport_baseline

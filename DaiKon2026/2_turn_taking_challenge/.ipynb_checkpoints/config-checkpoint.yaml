@@ -1,0 +1,23 @@
+data:
+  data_root: ../../data
+  labels_file: ../../data/labels_turn_taking/daikon_turn_taking_labels_public.csv
+  modality: multimodal  # one of: audio, video, multimodal
+  context_window_s: 10.0
+  time_clip_min: -5.0
+  time_clip_max: 10.0
+  num_workers: 4
+
+model:
+  hidden_dim: 256
+  dropout: 0.2
+  regression_loss_weight: 0.1
+
+training:
+  batch_size: 128
+  lr: 1.0e-4
+  weight_decay: 1.0e-4
+  max_epochs: 50
+  early_stopping_patience: 7
+
+output:
+  run_dir: ./runs/turn_taking_baseline

@@ -1,0 +1,22 @@
+name: daikon-challenges
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - pyarrow
+  - pyyaml
+  - tqdm
+  - pytorch>=2.2
+  - torchvision
+  - torchaudio
+  - pytorch-lightning>=2.2
+  - cudatoolkit
+  - pip:
+      - wandb
